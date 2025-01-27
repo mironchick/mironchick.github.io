@@ -8,20 +8,32 @@
 </head>
 <body>
     <a-scene>
+        <!-- Небо и поверхность -->
         <a-sky color="#b6e5ff"></a-sky>
         <a-plane color="#7cc991" height="50" width="50" rotation="-90 0 0"></a-plane>
-        <a-entity camera look-controls wasd-controls position="0 1 0">
-            <!-- Подключаем raycaster к камере для отслеживания взаимодействий -->
-            <a-entity raycaster="objects: .collectible; cursor: true; rayOrigin: mouse"></a-entity>
+
+        <!-- Камера с возможностью перемещения -->
+        <a-entity id="camera" camera look-controls position="0 1 0">
+            <!-- Курсор для взаимодействия с объектами -->
+            <a-entity raycaster="objects: .collectible; color: #ff0000;" cursor="rayOrigin: mouse" position="0 0 -1"></a-entity>
         </a-entity>
 
-        <!-- Контроллеры для VR -->
-        <a-entity id="left-controller" hand="left" oculus-touch-controls="hand: left" 
-                  raycaster="objects: .collectible; color: #ff0000;"></a-entity>
-        <a-entity id="right-controller" hand="right" oculus-touch-controls="hand: right" 
-                  raycaster="objects: .collectible; color: #ff0000;"></a-entity>
+        <!-- Контроллеры с лучами для взаимодействия и перемещения -->
+        <a-entity id="left-controller" 
+                  hand="left" 
+                  oculus-touch-controls="hand: left" 
+                  raycaster="objects: .collectible; far: 20; showLine: true; color: #ff0000;" 
+                  line="color: #ff0000; opacity: 0.8;"
+                  teleport-controls="cameraRig: #camera; speed: 1.5; reset: true" position="0 0 0"></a-entity>
 
-        <!-- Сферы -->
+        <a-entity id="right-controller" 
+                  hand="right" 
+                  oculus-touch-controls="hand: right" 
+                  raycaster="objects: .collectible; far: 20; showLine: true; color: #ff0000;" 
+                  line="color: #ff0000; opacity: 0.8;"
+                  teleport-controls="cameraRig: #camera; speed: 1.5; reset: true" position="0 0 0"></a-entity>
+
+        <!-- Сферы для сбора -->
         <a-sphere class="collectible" position="-9 1 17" radius="1" color="#4682B4"></a-sphere>
         <a-sphere class="collectible" position="-15 1.42 -19" radius="1.42" color="#9400D3"></a-sphere>
         <a-sphere class="collectible" position="3 1.33 9" radius="1.33" color="#FF00FF"></a-sphere>
