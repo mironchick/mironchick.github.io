@@ -17,15 +17,18 @@
             <a-entity id="camera" camera look-controls></a-entity>
         </a-entity>
 
-        <!-- Контроллеры -->
+        <!-- Контроллеры Pico -->
         <a-entity id="left-controller" 
-                  oculus-touch-controls="hand: left" 
+                  tracked-controls="controller: 0; hand: left"
+                  pico-controls="hand: left"
                   teleport-controls="cameraRig: #rig; curveShootingSpeed: 3; collisionEntities: [a-plane]"
                   raycaster="objects: .collectible; showLine: true; far: 10;" 
-                  line="color: red; opacity: 0.8;"></a-entity>
+                  line="color: red; opacity: 0.8;">
+        </a-entity>
 
         <a-entity id="right-controller" 
-                  oculus-touch-controls="hand: right" 
+                  tracked-controls="controller: 1; hand: right"
+                  pico-controls="hand: right"
                   raycaster="objects: .collectible; showLine: true; far: 10;" 
                   line="color: red; opacity: 0.8;">
         </a-entity>
