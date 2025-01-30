@@ -12,83 +12,66 @@
         <a-sky color="#b6e5ff"></a-sky>
         <a-plane color="#7cc991" height="50" width="50" rotation="-90 0 0"></a-plane>
 
-        <!-- Камера с возможностью перемещения -->
-        <a-entity id="camera" camera look-controls position="0 1 0">
-            <!-- Курсор для взаимодействия с объектами -->
-            <a-entity raycaster="objects: .collectible; color: #ff0000;" cursor="rayOrigin: mouse" position="0 0 -1"></a-entity>
+        <!-- Камера и риг для перемещения -->
+        <a-entity id="rig" position="0 1.6 0" movement-controls>
+            <a-entity id="camera" camera look-controls></a-entity>
         </a-entity>
 
-        <!-- Контроллеры с лучами для взаимодействия и перемещения -->
+        <!-- Контроллеры -->
         <a-entity id="left-controller" 
-                  hand="left" 
                   oculus-touch-controls="hand: left" 
-                  raycaster="objects: .collectible; far: 20; showLine: true; color: #ff0000;" 
-                  line="color: #ff0000; opacity: 0.8;"
-                  teleport-controls="cameraRig: #camera; speed: 1.5; reset: true" position="0 0 0"></a-entity>
+                  teleport-controls="cameraRig: #rig; curveShootingSpeed: 3; collisionEntities: [a-plane]"
+                  raycaster="objects: .collectible; showLine: true; far: 10;" 
+                  line="color: red; opacity: 0.8;"></a-entity>
 
         <a-entity id="right-controller" 
-                  hand="right" 
                   oculus-touch-controls="hand: right" 
-                  raycaster="objects: .collectible; far: 20; showLine: true; color: #ff0000;" 
-                  line="color: #ff0000; opacity: 0.8;"
-                  teleport-controls="cameraRig: #camera; speed: 1.5; reset: true" position="0 0 0"></a-entity>
+                  raycaster="objects: .collectible; showLine: true; far: 10;" 
+                  line="color: red; opacity: 0.8;">
+        </a-entity>
 
         <!-- Сферы для сбора -->
         <a-sphere class="collectible" position="-9 1 17" radius="1" color="#4682B4"></a-sphere>
         <a-sphere class="collectible" position="-15 1.42 -19" radius="1.42" color="#9400D3"></a-sphere>
         <a-sphere class="collectible" position="3 1.33 9" radius="1.33" color="#FF00FF"></a-sphere>
 
-        <!-- Счёт (увеличенный текст) -->
+        <!-- Счётчик -->
         <a-entity id="score" text="value: Score: 0; color: black; align: center; width: 5" position="0 2.5 -5"></a-entity>
 
+        <!-- Таймер -->
         <a-text id="timer" value="Time: 60" position="1.5 2.5 -5" color="black"></a-text>
-
+        
         <!-- Текст завершения игры -->
         <a-entity id="game-over" text="value: ; color: red; align: center; width: 7" position="0 3 -5"></a-entity>
     </a-scene>
 </body>
 <script>
-    let collectedCount = 0; // Счётчик собранных объектов
-    let totalCollectibles = 3; // Всего объектов для сбора
+    let collectedCount = 0;
+    let totalCollectibles = 3;
 
-    // Регистрация компонента "collectible"
     AFRAME.registerComponent('collectible', {
         init: function () {
             this.el.addEventListener('click', () => {
-                // Удаляем сферу из сцены
                 this.el.parentNode.removeChild(this.el);
-
-                // Обновляем счёт
                 let scoreEntity = document.querySelector('#score');
                 let currentScore = parseInt(scoreEntity.getAttribute('text').value.replace('Score: ', ''), 10);
-                currentScore += 1;
-
-                // Устанавливаем новое значение текста
-                scoreEntity.setAttribute('text', 'value: Score: ' + currentScore + '; color: black; align: center; width: 5');
-
-                // Увеличиваем счётчик собранных объектов
+                currentScore++;
+                scoreEntity.setAttribute('text', 'value: Score: ' + currentScore);
                 collectedCount++;
-                if (collectedCount === totalCollectibles) {
-                    endGame(); // Завершаем игру, если всё собрано
-                }
+                if (collectedCount === totalCollectibles) endGame();
             });
         }
     });
 
-    // Функция завершения игры
     function endGame() {
         let scoreEntity = document.querySelector('#score');
         let finalScore = parseInt(scoreEntity.getAttribute('text').value.replace('Score: ', ''), 10);
-
-        // Показываем текст завершения игры
         let gameOverEntity = document.querySelector('#game-over');
-        gameOverEntity.setAttribute('text', 'value: Game Over! Your score: ' + finalScore + '; color: red; align: center; width: 7');
+        gameOverEntity.setAttribute('text', 'value: Game Over! Your score: ' + finalScore);
     }
 
-    // Таймер
     let timeLeft = 60;
     let timerElement = document.querySelector('#timer');
-
     function updateTimer() {
         if (timeLeft > 0) {
             timeLeft--;
@@ -97,8 +80,6 @@
             endGame();
         }
     }
-
-    // Обновление каждую секунду
     setInterval(updateTimer, 1000);
 </script>
 </html>
