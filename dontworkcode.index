@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ultragame</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@latest/dist/aframe-physics-system.min.js"></script>
+    <script src="https://ideaspacevr.github.io/aframe-particle-system-component/dist/aframe-particle-system-component.min.js"></script>
+</head>
+<body>
+    <a-scene>
+        <a-sky color="#b6e5ff"></a-sky>
+        <a-plane color="#7cc991" height="50" width="50" rotation="-90 0 0"></a-plane>
+        
+        <!-- Камера и raycaster с курсором -->
+        <a-entity camera look-controls wasd-controls position="0 1 0">
+            <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .collectible; far: 10"></a-entity>
+        </a-entity>
+
+        <!-- Сферы -->
+        <a-sphere class="collectible" position="-9 1 17" radius="1" color="#4682B4"></a-sphere>
+        <a-sphere class="collectible" position="-15 1.42 -19" radius="1.42" color="#9400D3"></a-sphere>
+        <a-sphere class="collectible" position="3 1.33 9" radius="1.33" color="#FF00FF"></a-sphere>
+
+        <a-gltf-model src="model.glb" position="0 5 -17" scale="1 1 1"></a-gltf-model>
+        <a-entity position="0 2.25 -15" particle-system="preset: snow"></a-entity>
+
+        <!-- Счёт -->
+        <a-entity id="score" text="value: Score: 0; color: black; align: center; width: 5" position="0 2.5 -5"></a-entity>
+        <a-text id="timer" value="Time: 60" position="1.5 2.5 -5" color="black"></a-text>
+        <a-entity id="game-over" text="value: ; color: red; align: center; width: 7" position="0 3 -5"></a-entity>
+    </a-scene>
+
+    <script>
+        let collectedCount = 0;
+        let totalCollectibles = 3;
+
+        // Регистрируем компонент для сбора объектов
+        AFRAME.registerComponent('collectible', {
+    init: function () {
+        this.el.addEventListener('mouseenter', () => {  // Замените на mouseenter
+            let sphere = this.el;
+            let position = sphere.getAttribute('position');
+
+            // Создаём частицы
+            let particles = document.createElement('a-entity');
+            particles.setAttribute('position', position.x + ' ' + position.y + ' ' + position.z);
+            particles.setAttribute('particle-system', {
+                preset: 'default',
+                particleCount: 100,
+                color: ['#ffffff', '#ffff00', '#ff0000'],
+                size: 2,
+                velocityValue: '1 2 1',
+                duration: 500
+            });
+            sphere.sceneEl.appendChild(particles);
+
+            // Анимация исчезновения
+            sphere.setAttribute('animation', {
+                property: 'scale',
+                to: '0 0 0',
+                dur: 500,
+                easing: 'easeOutQuad'
+            });
+            sphere.setAttribute('animation__fade', {
+                property: 'material.opacity',
+                to: 0,
+                dur: 500,
+                easing: 'easeOutQuad'
+            });
+
+            // Удаляем сферу и частицы
+            setTimeout(() => {
+                sphere.parentNode.removeChild(sphere);
+                particles.parentNode.removeChild(particles);
+            }, 500);
+
+            // Обновляем счёт
+            let scoreEntity = document.querySelector('#score');
+            let currentScore = parseInt(scoreEntity.getAttribute('text').value.replace('Score: ', ''), 10);
+            currentScore += 1;
+            scoreEntity.setAttribute('text', 'value: Score: ' + currentScore + '; color: black; align: center; width: 5');
+
+            collectedCount++;
+            if (collectedCount === totalCollectibles) {
+                endGame();
+            }
+        });
+    }
+});
+
+
+        function endGame() {
+            let scoreEntity = document.querySelector('#score');
+            let finalScore = parseInt(scoreEntity.getAttribute('text').value.replace('Score: ', ''), 10);
+            let gameOverEntity = document.querySelector('#game-over');
+            gameOverEntity.setAttribute('text', 'value: Game Over! Your score: ' + finalScore + '; color: red; align: center; width: 7');
+        }
+
+        let timeLeft = 60;
+        let timerElement = document.querySelector('#timer');
+
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                timerElement.setAttribute('value', 'Time: ' + timeLeft);
+            } else {
+                endGame();
+            }
+        }
+
+        setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>
